@@ -28,7 +28,7 @@ namespace RepoBrowserService
         {
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
             // Make the repo settings available to middleware
-            services.Configure<RepositorySettings>(Configuration);
+            services.Configure<RepositorySettings>(options => Configuration.GetSection("RepositorySettings").Bind(options));
             // Add logging
             services.AddLogging();
         }

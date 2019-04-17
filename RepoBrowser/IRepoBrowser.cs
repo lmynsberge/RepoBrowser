@@ -14,9 +14,5 @@ namespace RepoBrowser
         IAuthenticationService GetAuthenticationService();
         ITransformationService GetTransformationService();
         HttpMessageHandler GetHttpMessageHandler();
-
-        JsonResult Search(string database, Dictionary<string, string> searchArguments);
-
-        Task<JsonResult> SearchAsync(string database, Dictionary<string, string> searchArguments);
     }
 }

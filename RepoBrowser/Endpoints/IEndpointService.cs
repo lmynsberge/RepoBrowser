@@ -3,5 +3,6 @@ namespace RepoBrowser.Endpoints
 {
     public interface IEndpointService
     {
+
     }
 }

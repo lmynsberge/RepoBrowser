@@ -14,6 +14,9 @@
     <Reference Include="Microsoft.AspNetCore.Http.Abstractions">
       <HintPath>..\..\..\..\..\usr\local\share\dotnet\sdk\NuGetFallbackFolder\microsoft.aspnetcore.http.abstractions\2.2.0\lib\netstandard2.0\Microsoft.AspNetCore.Http.Abstractions.dll</HintPath>
     </Reference>
+    <Reference Include="Newtonsoft.Json">
+      <HintPath>..\..\..\..\..\usr\local\share\dotnet\sdk\NuGetFallbackFolder\newtonsoft.json\9.0.1\lib\netstandard1.0\Newtonsoft.Json.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\DataModels\DataModels.csproj" />
@@ -21,7 +24,10 @@
   <ItemGroup>
     <Folder Include="Authentication\" />
     <Folder Include="Transformation\" />
-    <Folder Include="Endpoints\" />
     <Folder Include="Storage\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Remove="RepositorySettings.cs" />
+    <Compile Remove="Endpoints\GraphQLEndpointService.cs" />
   </ItemGroup>
 </Project>

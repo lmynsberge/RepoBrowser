@@ -8,6 +8,8 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using RepoBrowserService.Configuration;
 using RepoBrowser;
+using RepoBrowser.Storage;
+using DataModels.Internal;
 
 namespace RepoBrowserService.Controllers
 {
@@ -16,52 +18,99 @@ namespace RepoBrowserService.Controllers
     public class PRsController : Controller
     {
         // Configuration from appsettings
-        private ILogger _logger;
+        private readonly ILogger _logger;
         private IStorageRepository _orgRepository;
+        private List<RepoBrowserConfiguration> _repoConfig;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="T:RepoBrowserService.Controllers.PRsController"/> class.
+        /// </summary>
+        /// <param name="logger">Logger.</param>
+        /// <param name="repoSettings">Repo settings.</param>
         public PRsController(ILogger<PRsController> logger, IOptions<RepositorySettings> repoSettings)
         {
-            if (logger == null)
-            {
-                throw new NullReferenceException("Logger must not be null.");
-            }
-            _logger = logger;
+            _logger = logger ?? throw new NullReferenceException("Logger must not be null.");
             ParseConfiguration(repoSettings);
         }
 
-        // GET api/prs?orgName={something?}
-        [HttpGet]
-        public ActionResult Get([FromQuery]string orgName)
-        {
-            if (string.IsNullOrEmpty(orgName))
-            {
-                _logger.LogError("No orgName query string was provided.");
-                return new BadRequestResult();
-            }
-            return Json(orgName);
-        }
-
-        // GET api/prs/{id}
+        /// <summary>
+        /// Handles GET api/prs/{id} along with query parameters 'repo' and 'state'
+        /// </summary>
+        /// <returns>The JSON response of the request</returns>
+        /// <param name="id">Identifier.</param>
+        /// <param name="repo">Repo.</param>
+        /// <param name="state">State.</param>
         [HttpGet("{id}")]
-        public ActionResult Get(int id)
+        public async Task<ActionResult> Get(int id, 
+            [FromQuery]string repo, [FromQuery]string state)
         {
-            // Check if organization exists
+            // Check if organization exists, otherwise not found
+            if (!DoesOrganizationExist(id, out Organization organization))
+            {
+                return NotFound();
+            }
 
-            // Then fetch data from 
-            _logger.LogError("Fetching PRs for organization ID: " + id);
-            return Json(id);
+            // Then fetch data from PRs using that organization
+            _logger.LogDebug("Fetching PRs for organization ID: " + id);
+
+            // Create internal PullRequestRequest from data and fetch it
+            PullRequestRequest request = CreatePullRequest(repo, state, organization.Repository.Name);
+            IRepoBrowser browser = RepoBrowserFactory.CreateRepoBrowser(organization, _repoConfig);
+            PullRequestResponse response = await RepoBrowserFactory.GetPullRequests(request, browser);
+
+            return Json(response);
         }
 
+        /// <summary>
+        /// Parses the configuration for the app
+        /// </summary>
+        /// <param name="repoSettings">Repo settings.</param>
         private void ParseConfiguration(IOptions<RepositorySettings> repoSettings)
         {
-            _orgRepository = new InMemoryRepository("Organization");
+            if (repoSettings == null) { return; }
+
             // Add all organizations to the in-memory repository
+            //  For this repository, let the configurer decide the ID
+            _orgRepository = new InMemoryRepository("Organization");
+            repoSettings.Value?.OrganizationRepoSearch?.ForEach(
+                org => _orgRepository.Update(org.ID, org)
+                );
+
+            // Assing the repo configuration
+            _repoConfig = repoSettings.Value?.Repositories;
         }
 
-        private bool DoesOrganizationExist(int id)
+        /// <summary>
+        /// Checks whether or not the organization being requested already exists
+        /// </summary>
+        /// <returns><c>true</c>, if organization exists <c>false</c> otherwise.</returns>
+        /// <param name="id">Identifier.</param>
+        private bool DoesOrganizationExist(int id, out Organization organization)
         {
-            if (_orgRepository.Read(id) == null) { return false; }
+            organization = (Organization)_orgRepository.Read(id);
+            if ( organization == null) { return false; }
             return true;
+        }
+
+        /// <summary>
+        /// Creates the internal PR request object
+        /// </summary>
+        /// <returns>The pull request.</returns>
+        /// <param name="repo">Repo.</param>
+        /// <param name="state">State.</param>
+        private PullRequestRequest CreatePullRequest(string repo, string state, string orgName )
+        {
+            PullRequestRequest pullRequest = new PullRequestRequest();
+            pullRequest.Organization = orgName;
+            pullRequest.RepoName = repo;
+
+            // Try to parse, otherwise take default
+            if (Enum.TryParse<PullRequestRequest.PullRequestState>(state, out PullRequestRequest.PullRequestState  enumState))
+            {
+                pullRequest.State = enumState;
+            }
+
+            return pullRequest;
         }
     }
 }

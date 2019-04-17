@@ -1,15 +1,14 @@
 ﻿using System;
-using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Options;
+using System.Net.Http;
+using System.Threading.Tasks;
 
 namespace RepoBrowser.Authentication
 {
     public interface IAuthenticationService
     {
-        void Configure(IOptions options);
         bool IsAuthenticated();
-        void Authenticate();
-        void BeforeRequest(HttpRequest httpRequest);
-        void AfterResponse(HttpResponse httpResponse);
+        Task Authenticate(HttpMessageHandler handler);
+        void BeforeRequest(HttpRequestMessage httpRequest);
+        void AfterResponse(HttpResponseMessage httpResponse);
     }
 }

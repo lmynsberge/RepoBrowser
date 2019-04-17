@@ -5,15 +5,16 @@ namespace DataModels.Internal
 {
     public class Organization
     {
-        public int ID { get; private set; }
-        public List<Repository> Repositories = new List<Repository>();
+        public int ID { get; set; }
+        public OrgRepository Repository { get; set; }
 
+        public Organization() { }
         public Organization(int id)
         {
             ID = id;
         }
 
-        public class Repository
+        public class OrgRepository
         {
             public string Name { get; set; }
             public RepositoryType Type { get; set; }

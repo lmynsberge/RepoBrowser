@@ -1,37 +1,61 @@
 ﻿using System;
-using Microsoft.AspNetCore.Http;
+using System.Net.Http;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace RepoBrowser.Authentication
 {
     public class BasicAuthentication : IAuthenticationService
     {
-        public BasicAuthentication()
+
+        // encoded username
+        private string authToken;
+
+        public BasicAuthentication(AuthenticationSettings authSettings)
         {
+            string userName = Environment.GetEnvironmentVariable(authSettings.EnvUserName);
+            string password = Environment.GetEnvironmentVariable(authSettings.EnvUserPassword);
+
+            if (string.IsNullOrEmpty(userName)) { throw new NullReferenceException("Username must not be null."); }
+            if (string.IsNullOrEmpty(password)) { throw new NullReferenceException("Password must not be null."); }
+
+            // Passwords are assumed ASCII
+            authToken = Convert.ToBase64String(Encoding.ASCII.GetBytes(userName + ":" + password));
         }
 
-        public void AfterResponse(HttpResponse httpResponse)
+        /// <summary>
+        /// Nothing to do with the response.
+        /// </summary>
+        /// <param name="responseMessage">Response message.</param>
+        public void AfterResponse(HttpResponseMessage responseMessage)
         {
-            throw new NotImplementedException();
+            return;
         }
 
-        public void Authenticate()
+        /// <summary>
+        /// Does nothing for basic authentication since the pieces are just added to the header.
+        /// </summary>
+        public async Task Authenticate(HttpMessageHandler handler = null)
         {
-            throw new NotImplementedException();
+            return;
         }
 
-        public void BeforeRequest(HttpRequest httpRequest)
+        /// <summary>
+        /// Adds in the authentication header.
+        /// </summary>
+        /// <param name="httpRequest">Http request.</param>
+        public void BeforeRequest(HttpRequestMessage httpRequest)
         {
-            throw new NotImplementedException();
+            httpRequest.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Basic", authToken);
         }
 
-        public void Configure(Microsoft.Extensions.Options.IOptions options)
-        {
-            throw new NotImplementedException();
-        }
-
+        /// <summary>
+        /// Always true since it's just added in.
+        /// </summary>
+        /// <returns><c>true</c>, if authenticated, <c>false</c> otherwise.</returns>
         public bool IsAuthenticated()
         {
-            throw new NotImplementedException();
+            return true;
         }
     }
 }

@@ -1,5 +1,5 @@
 ﻿using System;
-namespace RepoBrowser
+namespace RepoBrowser.Storage
 {
     public interface IStorageRepository
     {
