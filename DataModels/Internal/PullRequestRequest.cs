@@ -31,6 +31,6 @@
             Descending
         }
 
-        public new string RepoRequestType = "PullRequestRequest";
+        public override string RepoRequestType { get; set; } = "PullRequestRequest";
     }
 }

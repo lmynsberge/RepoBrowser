@@ -65,6 +65,7 @@ namespace RepoBrowser.Transformation
                 else
                 {
                     _nextPage = new Uri(nextLink);
+                    _makeAnotherRequest = true;
                 }
                 return _makeAnotherRequest;
             }
@@ -97,6 +98,7 @@ namespace RepoBrowser.Transformation
                     // Otherwise, this will get them 'all' and pagination can decide for more
                     else
                     {
+                        _repoList.Add(prRequest.RepoName);
                         requestUri = CreateRequestUri(prRequest.Organization, prRequest.RepoName, prRequest.State.ToString());
                     }
                 }

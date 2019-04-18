@@ -86,7 +86,7 @@ namespace RepoBrowser.Authentication
         /// <param name="httpRequest">Http request.</param>
         public void BeforeRequest(HttpRequestMessage httpRequest)
         {
-            httpRequest.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("token", _authToken);
+            if (!string.IsNullOrEmpty(_authToken)) httpRequest.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("token", _authToken);
         }
 
         /// <summary>

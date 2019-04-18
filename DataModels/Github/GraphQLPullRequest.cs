@@ -11,6 +11,11 @@ namespace DataModels.Github
         public Data data { get; set; }
     }
 
+    public class GraphQLRepoSpecificPullRequest
+    {
+        public RepoData data { get; set; }
+    }
+
     public class PageInfo
     {
         public string endCursor { get; set; }
@@ -73,4 +78,11 @@ namespace DataModels.Github
     {
         public Organization organization { get; set; }
     }
+
+    public class RepoData
+    {
+        public RepoNode repository { get; set; }
+    }
+
+
 }

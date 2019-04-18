@@ -7,8 +7,8 @@ namespace DataModels.Internal
         public int TotalCount { get { return PullRequests.Count; } }
 
         // For now and for simplicity, just use Github as our "internal" data model.
-        public List<PullRequest> PullRequests = new List<PullRequest>();
+        public List<PullRequest> PullRequests { get; set; } = new List<PullRequest>();
 
-        public new string RepoResponseType = "PullRequestResponse";
+        public override string RepoResponseType { get; set; } = "PullRequestResponse";
     }
 }
