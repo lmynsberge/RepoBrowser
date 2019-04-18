@@ -108,7 +108,8 @@ namespace RepoBrowser.Authentication
             public OAuth2RequestObject(List<string> scopes, string note, string clientId, string clientSecret)
             {
                 Scopes = scopes;
-                Note = note;
+                // Always a unique Guid for testing
+                Note = note + Guid.NewGuid();
                 ClientID = clientId;
                 ClientSecret = clientSecret;
 

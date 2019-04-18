@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Net.Http;
 using System.Net.Http.Headers;
-using DataModels.Github;
+using gh = DataModels.Github;
 using DataModels.Internal;
 using Newtonsoft.Json;
 
@@ -45,8 +45,8 @@ namespace RepoBrowser.Transformation
                 }
 
                 // Add the result (right now the GH REST response "is" our internal data model, otherwise other conversion would be necessary)
-                var prResults = JsonConvert.DeserializeObject<List<PullRequest>>((httpResponse.Content.ReadAsStringAsync()).Result);
-                prResponse.PullRequests.AddRange(prResults);
+                var prResults = JsonConvert.DeserializeObject<List<gh.PullRequest>>((httpResponse.Content.ReadAsStringAsync()).Result);
+                prResponse.PullRequests.AddRange(ConvertGithubPullRequests(prResults));
 
                 var nextLink = ReturnNextLinkPage(httpResponse.Headers);
                 if (string.IsNullOrEmpty(nextLink))
@@ -80,13 +80,13 @@ namespace RepoBrowser.Transformation
                     // If no repo name, first get the list of repos and we'll need to go again
                     if (string.IsNullOrEmpty(prRequest.RepoName))
                     {
-                        requestUri = new Uri("https://api.github.com/orgs/" + prRequest.Organization + "/repos");
+                        requestUri = CreateRequestUri(prRequest.Organization);
                         _makeAnotherRequest = true;
                     }
                     // Otherwise, this will get them 'all' and pagination can decide for more
                     else
                     {
-                        requestUri = new Uri("https://api.github.com/repos/" + prRequest.Organization + "/" + prRequest.RepoName + "/pulls");
+                        requestUri = CreateRequestUri(prRequest.Organization, prRequest.RepoName, prRequest.State.ToString());
                     }
                 }
                 // Otherwise make we need to make the repo request and check pagination
@@ -97,7 +97,7 @@ namespace RepoBrowser.Transformation
                     {
                         // Nothing to do and no more repos
                         if (_repoList.Count < 1) { return false; }
-                        requestUri = new Uri("https://api.github.com/repos/" + prRequest.Organization + "/" + _repoList[0] + "/pulls");
+                        requestUri = CreateRequestUri(prRequest.Organization, _repoList[0], prRequest.State.ToString());
                     }
                     else
                     {
@@ -144,5 +144,49 @@ namespace RepoBrowser.Transformation
         {
             return githubLinkPiece.Split('>')[0].Trim(' ').Trim('<');
         }
+
+        private Uri CreateRequestUri(string org, string repo = "", string state = "")
+        {
+            if (string.IsNullOrEmpty(repo))
+            {
+                return new Uri("https://api.github.com/orgs/" + org + "/repos");
+            }
+            UriBuilder uriBuilder = new UriBuilder(new Uri("https://api.github.com/repos/" + org + "/" + repo + "/pulls"))
+            {
+                // Add state query always (typically is the default)
+                Query = "state=" + state.ToLower() + "&per_page=100"
+            };
+
+            return uriBuilder.Uri;
+        }
+
+        private List<PullRequest> ConvertGithubPullRequests(List<gh.PullRequest> ghPulls)
+        {
+            List<PullRequest> pullRequests = new List<PullRequest>();
+
+            foreach(gh.PullRequest ghPull in ghPulls)
+            {
+                pullRequests.Add(new PullRequest()
+                {
+                    url = ghPull.url,
+                    id = ghPull.id,
+                    node_id = ghPull.node_id,
+                    html_url = ghPull.html_url,
+                    number = ghPull.number,
+                    state = ghPull.state,
+                    locked = ghPull.locked,
+                    title = ghPull.title,
+                    user = ghPull.user?.login,
+                    body = ghPull.body,
+                    created_at = ghPull.created_at,
+                    updated_at = ghPull.updated_at,
+                    closed_at = ghPull.closed_at,
+                    merged_at = ghPull.merged_at,
+                    author_association = ghPull.author_association
+                });
+            }
+            return pullRequests;
+        }
     }
 }
+

@@ -10,6 +10,7 @@ using RepoBrowserService.Configuration;
 using RepoBrowser;
 using RepoBrowser.Storage;
 using DataModels.Internal;
+using Microsoft.Extensions.Caching.Memory;
 
 namespace RepoBrowserService.Controllers
 {
@@ -19,6 +20,7 @@ namespace RepoBrowserService.Controllers
     {
         // Configuration from appsettings
         private readonly ILogger _logger;
+        private readonly IMemoryCache _memoryCache;
         private IStorageRepository _orgRepository;
         private List<RepoBrowserConfiguration> _repoConfig;
 
@@ -27,9 +29,10 @@ namespace RepoBrowserService.Controllers
         /// </summary>
         /// <param name="logger">Logger.</param>
         /// <param name="repoSettings">Repo settings.</param>
-        public PRsController(ILogger<PRsController> logger, IOptions<RepositorySettings> repoSettings)
+        public PRsController(ILogger<PRsController> logger, IOptions<RepositorySettings> repoSettings, IMemoryCache memoryCache)
         {
             _logger = logger ?? throw new NullReferenceException("Logger must not be null.");
+            _memoryCache = memoryCache;
             ParseConfiguration(repoSettings);
         }
 
@@ -44,6 +47,9 @@ namespace RepoBrowserService.Controllers
         public async Task<ActionResult> Get(int id, 
             [FromQuery]string repo, [FromQuery]string state)
         {
+            // TODO: Remove - for quick metric purposes only
+            DateTime start = DateTime.UtcNow;
+
             // Check if organization exists, otherwise not found
             if (!DoesOrganizationExist(id, out Organization organization))
             {
@@ -55,9 +61,11 @@ namespace RepoBrowserService.Controllers
 
             // Create internal PullRequestRequest from data and fetch it
             PullRequestRequest request = CreatePullRequest(repo, state, organization.Repository.Name);
-            IRepoBrowser browser = RepoBrowserFactory.CreateRepoBrowser(organization, _repoConfig);
+            IRepoBrowser browser = RepoBrowserFactory.CreateRepoBrowser(organization, _repoConfig, _memoryCache);
             PullRequestResponse response = await RepoBrowserFactory.GetPullRequests(request, browser);
 
+            // TODO: Remove - for quick metric purposes only
+            _logger.LogError("EndTime: " + (new TimeSpan(DateTime.UtcNow.Ticks - start.Ticks)).TotalSeconds);
             return Json(response);
         }
 
@@ -105,7 +113,7 @@ namespace RepoBrowserService.Controllers
             pullRequest.RepoName = repo;
 
             // Try to parse, otherwise take default
-            if (Enum.TryParse<PullRequestRequest.PullRequestState>(state, out PullRequestRequest.PullRequestState  enumState))
+            if (Enum.TryParse<PullRequestRequest.PullRequestState>(state, true, out PullRequestRequest.PullRequestState  enumState))
             {
                 pullRequest.State = enumState;
             }

@@ -1,10 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Net.Http;
+using System.Security.Cryptography;
+using System.Text;
 using System.Threading.Tasks;
 using DataModels.Internal;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Options;
 using RepoBrowser.Authentication;
 using RepoBrowser.Endpoints;
@@ -20,7 +23,7 @@ namespace RepoBrowser
         /// <returns>The search repository.</returns>
         /// <param name="organization">Organization.</param>
         /// <param name="config">Config.</param>
-        public static IRepoBrowser CreateRepoBrowser(Organization organization, List<RepoBrowserConfiguration> config)
+        public static IRepoBrowser CreateRepoBrowser(Organization organization, List<RepoBrowserConfiguration> config, IMemoryCache memoryCache)
         {
             if (organization.Repository == null)
             {
@@ -30,8 +33,9 @@ namespace RepoBrowser
             switch(organization.Repository.Type)
             {
                 case RepositoryType.Github:
+                    RepoBrowserConfiguration finalConfig = config.FindLast((obj) => obj.TypeName == RepositoryType.Github);
                     // Get the last instance of the Github repo definitions
-                    return GetGithubRepoBrowser(organization, config.FindLast((obj) => obj.TypeName == RepositoryType.Github));
+                    return GetGithubRepoBrowser(organization, finalConfig, memoryCache);
                 default:
                     throw new NotSupportedException("Repository type not currently supported: " + organization.Repository);
             }
@@ -88,9 +92,41 @@ namespace RepoBrowser
 
         }
 
-        internal static IRepoBrowser GetGithubRepoBrowser(Organization org, RepoBrowserConfiguration config)
+        private static string ComputeHash(string textToCompute)
         {
-            IAuthenticationService authService = CreateObjectOfType<IAuthenticationService>(config.AuthType, config.AuthSettings);
+            // Can use SHA1 - since this is just a quick memory check. 
+            using (SHA1 sha1Hasher = SHA1.Create())
+            {
+                // Get the actual hash 
+                byte[] bytes = sha1Hasher.ComputeHash(Encoding.UTF8.GetBytes(textToCompute));
+
+                // Efficiently grab string
+                StringBuilder builder = new StringBuilder();
+                for (int i = 0; i < bytes.Length; i++)
+                {
+                    builder.Append(bytes[i].ToString("x2"));
+                }
+                return builder.ToString();
+            }
+        }
+
+        internal static IRepoBrowser GetGithubRepoBrowser(Organization org, RepoBrowserConfiguration config, IMemoryCache memoryCache)
+        {
+            // Authentication can be re-used
+            string hashKey = ComputeHash(config.AuthType);
+            // First check our cache for the value
+            if (memoryCache != null && memoryCache.TryGetValue(hashKey, out IAuthenticationService authService)) 
+            {
+            }
+            else
+            {
+                authService = CreateObjectOfType<IAuthenticationService>(config.AuthType, config.AuthSettings);
+                if (memoryCache != null)
+                {
+                    memoryCache.Set(hashKey, authService);
+                }
+            }
+
             ITransformationService transformService = CreateObjectOfType<ITransformationService>(config.TransformType);
             HttpMessageHandler messageHandler = null;
             if (!string.IsNullOrEmpty(config.HttpMessageHandlerType))

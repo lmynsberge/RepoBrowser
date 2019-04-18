@@ -31,6 +31,7 @@ namespace RepoBrowserService
             services.Configure<RepositorySettings>(options => Configuration.GetSection("RepositorySettings").Bind(options));
             // Add logging
             services.AddLogging();
+            services.AddMemoryCache();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

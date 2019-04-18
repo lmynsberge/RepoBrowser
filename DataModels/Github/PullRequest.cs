@@ -219,10 +219,10 @@ namespace DataModels.Github
         public string title { get; set; }
         public User user { get; set; }
         public string body { get; set; }
-        public DateTime created_at { get; set; }
-        public DateTime updated_at { get; set; }
-        public object closed_at { get; set; }
-        public object merged_at { get; set; }
+        public DateTime? created_at { get; set; }
+        public DateTime? updated_at { get; set; }
+        public DateTime? closed_at { get; set; }
+        public DateTime? merged_at { get; set; }
         public string merge_commit_sha { get; set; }
         public object assignee { get; set; }
         public List<object> assignees { get; set; }
