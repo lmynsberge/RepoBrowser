@@ -1,6 +1,12 @@
 # RepoBrowser
 Thie project contains Git tools to grab data about repositories from Github (currently).
 
+Why I think this is great?
+The service does three small things that make a big difference:
+* Decouples relationships between functionality so that different repositories, different authentication, and different web communication types can be used.
+* Collects data and brings it to a 'repository host'-agnostic way making it more consistent to manipulate and get at data.
+* Allows flexibility and customizability for future development and changes one might want to make on their own.
+
 ## Getting Started
 
 These instructions will get you a copy of the project up and running on your local machine for development and testing purposes. See deployment for notes on how to deploy the project on a live system.
@@ -47,7 +53,7 @@ TBD
 ## Acknowledgments
 
 * Thanks to PurpleBooth for a good Readme template: https://gist.github.com/PurpleBooth/109311bb0361f32d87a2
-* Thanks to Json2Csharp for creating the POCOs from JSON.
+* Thanks to Json2Csharp for creating the POCOs from JSON for Github REST and GraphQL responses.
 
 ## Future Enhancements
 * Improved error handling - right now it just lets the controller exceptions log the information.
@@ -64,7 +70,7 @@ The service was defined with configuration and customizability in mind. The most
 
 If you want to use your own, make sure your DLL is in the directory the service is running it and put its FQDN into the appropriate configuration portion.
 
-## Summary/Metrics
+## Results & Metrics
 As of this writing, this was tested with the Ramda organization's Github repositories.
 
 It finds 1799 total pull requests (open & closed/merged) across all repositories. Using the console or directly calling the service's API this can be limited. For example:
