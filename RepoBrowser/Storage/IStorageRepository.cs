@@ -1,6 +1,9 @@
 ﻿using System;
 namespace RepoBrowser.Storage
 {
+    /// <summary>
+    /// Quick CRUD repository interface.
+    /// </summary>
     public interface IStorageRepository
     {
         long Create(object result);

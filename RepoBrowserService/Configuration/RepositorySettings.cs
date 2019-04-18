@@ -1,12 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using DataModels.Internal;
 using RepoBrowser;
-using RepoBrowser.Authentication;
-using RepoBrowser.Transformation;
 
 namespace RepoBrowserService.Configuration
 {
+    /// <summary>
+    /// Repository settings class to pull from the appsettings JSON file.
+    /// </summary>
     public class RepositorySettings
     {
         public List<Organization> OrganizationRepoSearch { get; set; } = new List<Organization>();

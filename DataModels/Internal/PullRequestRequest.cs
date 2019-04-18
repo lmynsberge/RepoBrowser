@@ -1,5 +1,4 @@
-﻿using System;
-namespace DataModels.Internal
+﻿namespace DataModels.Internal
 {
     public class PullRequestRequest : RepoRequest
     {
@@ -31,5 +30,7 @@ namespace DataModels.Internal
             Ascending,
             Descending
         }
+
+        public new string RepoRequestType = "PullRequestRequest";
     }
 }

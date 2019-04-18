@@ -204,6 +204,9 @@ namespace DataModels.Github
         public Statuses statuses { get; set; }
     }
 
+    /// <summary>
+    /// Github's REST V3 PullRequest model.
+    /// </summary>
     public class PullRequest
     {
         public string url { get; set; }

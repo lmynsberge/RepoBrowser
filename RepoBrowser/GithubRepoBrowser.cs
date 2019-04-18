@@ -1,13 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Net.Http;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
+﻿using System.Net.Http;
 using RepoBrowser.Authentication;
 using RepoBrowser.Transformation;
 
 namespace RepoBrowser
 {
+    /// <summary>
+    /// A repo browser for Github. Would likely be the same for Bitbucket, but could have small modifications.
+    /// </summary>
     public class GithubRepoBrowser : IRepoBrowser
     {
         private IAuthenticationService _authService;

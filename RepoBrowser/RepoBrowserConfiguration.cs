@@ -1,9 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using DataModels.Internal;
 
 namespace RepoBrowser
 {
+    /// <summary>
+    /// Main configuraiton for a repository to be analyzed.
+    /// </summary>
     public class RepoBrowserConfiguration
     {
         public RepositoryType TypeName { get; set; }
@@ -13,6 +15,9 @@ namespace RepoBrowser
         public string HttpMessageHandlerType { get; set; }
     }
 
+    /// <summary>
+    /// Settings for authentication of repositories.
+    /// </summary>
     public class AuthenticationSettings
     {
         public List<string> Scopes { get; set; } = new List<string>();

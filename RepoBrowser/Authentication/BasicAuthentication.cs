@@ -5,6 +5,10 @@ using System.Threading.Tasks;
 
 namespace RepoBrowser.Authentication
 {
+    /// <summary>
+    /// Implementation of basic authentication. Fortunately, Basic authentication is implemented pretty similarly across vendors.
+    /// It could require some modifications to support certificates or other scenarios.
+    /// </summary>
     public class BasicAuthentication : IAuthenticationService
     {
 

@@ -1,8 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace DataModels.Internal
+﻿namespace DataModels.Internal
 {
+    /// <summary>
+    /// The internal organization data model.
+    /// </summary>
     public class Organization
     {
         public int ID { get; set; }

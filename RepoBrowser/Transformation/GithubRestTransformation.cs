@@ -8,25 +8,30 @@ using Newtonsoft.Json;
 
 namespace RepoBrowser.Transformation
 {
+    /// <summary>
+    /// Github REST (v3) transformation methods
+    /// </summary>
     public class GithubRestTransformation : ITransformationService
     {
         private bool _makeAnotherRequest = false;
         private List<string> _repoList = new List<string>();
         private Uri _nextPage;
 
-        public GithubRestTransformation()
-        {
-        }
-
+        /// <summary>
+        /// Implements the logic after the response for Github's REST API.
+        /// </summary>
+        /// <returns><c>true</c>, if to run a request again, <c>false</c> otherwise.</returns>
+        /// <param name="httpResponse">Http response.</param>
+        /// <param name="repoResponse">Repo response.</param>
         public bool AfterResponse(HttpResponseMessage httpResponse, RepoResponse repoResponse)
         {
             if (repoResponse is PullRequestResponse)
             {
                 PullRequestResponse prResponse = (PullRequestResponse)repoResponse;
-                // If a failure with the response, always exit cleanly.
+                // If a failure with the response, throw an exception so it gets caught and logged.
                 if (!httpResponse.IsSuccessStatusCode)
                 {
-                    return false;
+                    throw new HttpRequestException("Failed HTTP request to Github's v3/REST API: " + httpResponse.StatusCode + " - " + httpResponse.Content.ReadAsStringAsync().Result);
                 }
 
                 // If the URI contains 'orgs' we must have been getting the list of repos
@@ -67,6 +72,12 @@ namespace RepoBrowser.Transformation
             return false;
         }
 
+        /// <summary>
+        /// Implements actions before the request for Github's REST API to determine if the request is ready to be made.
+        /// </summary>
+        /// <returns><c>true</c>, if request was befored, <c>false</c> otherwise.</returns>
+        /// <param name="repoRequest">Repo request.</param>
+        /// <param name="httpRequest">Http request.</param>
         public bool BeforeRequest(RepoRequest repoRequest, HttpRequestMessage httpRequest)
         {
             if (repoRequest is PullRequestRequest)
@@ -115,6 +126,11 @@ namespace RepoBrowser.Transformation
             }
         }
 
+        /// <summary>
+        /// Wrapper function to find the next "link" for use in subsequent requests.
+        /// </summary>
+        /// <returns>The next link page.</returns>
+        /// <param name="headers">Headers.</param>
         private string ReturnNextLinkPage(HttpResponseHeaders headers)
         {
             // Now check whether we should paginate and remove this repo if not.
@@ -140,11 +156,23 @@ namespace RepoBrowser.Transformation
             return nextLink;
         }
 
+        /// <summary>
+        /// Wrapper to extract the Github link from the Link header.
+        /// </summary>
+        /// <returns>The link.</returns>
+        /// <param name="githubLinkPiece">Github link piece.</param>
         private string ExtractLink(string githubLinkPiece)
         {
             return githubLinkPiece.Split('>')[0].Trim(' ').Trim('<');
         }
 
+        /// <summary>
+        /// Consistently generates the request URI for Githubs v3 API. Right now it's just for pulls.
+        /// </summary>
+        /// <returns>The request URI.</returns>
+        /// <param name="org">Org.</param>
+        /// <param name="repo">Repo.</param>
+        /// <param name="state">State.</param>
         private Uri CreateRequestUri(string org, string repo = "", string state = "")
         {
             if (string.IsNullOrEmpty(repo))
@@ -160,6 +188,11 @@ namespace RepoBrowser.Transformation
             return uriBuilder.Uri;
         }
 
+        /// <summary>
+        /// Converts the github pull requests to our internal data models.
+        /// </summary>
+        /// <returns>The github pull requests.</returns>
+        /// <param name="ghPulls">Gh pulls.</param>
         private List<PullRequest> ConvertGithubPullRequests(List<gh.PullRequest> ghPulls)
         {
             List<PullRequest> pullRequests = new List<PullRequest>();

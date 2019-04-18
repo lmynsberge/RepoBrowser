@@ -3,6 +3,9 @@ using System.Collections.Generic;
 
 namespace DataModels.Github
 {
+    /// <summary>
+    /// Github's GraphQL PullRequest model as defined within our query logic here.
+    /// </summary>
     public class GraphQLPullRequest
     {
         public Data data { get; set; }

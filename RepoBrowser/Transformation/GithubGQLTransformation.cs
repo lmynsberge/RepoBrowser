@@ -20,6 +20,12 @@ namespace RepoBrowser.Transformation
         // Used to track the cursor or "next" piece for pagination
         private string _nextCursor = string.Empty;
 
+        /// <summary>
+        /// Implements the logic after the response for Github's GraphQL API.
+        /// </summary>
+        /// <returns><c>true</c>, if to run a request again, <c>false</c> otherwise.</returns>
+        /// <param name="httpResponse">Http response.</param>
+        /// <param name="repoResponse">Repo response.</param>
         public bool AfterResponse(HttpResponseMessage httpResponse, RepoResponse repoResponse)
         {
             if (repoResponse is PullRequestResponse)
@@ -28,12 +34,12 @@ namespace RepoBrowser.Transformation
                 // If a failure with the response, always exit cleanly.
                 if (!httpResponse.IsSuccessStatusCode)
                 {
-                    return false;
+                    throw new HttpRequestException("Failed HTTP request to Github's v4/GraphQL API: " + httpResponse.StatusCode + " - " + httpResponse.Content.ReadAsStringAsync().Result);
                 }
 
                 // Add the result (right now the GH REST response "is" our internal data model, otherwise other conversion would be necessary)
                 var prResults = JsonConvert.DeserializeObject<gh.GraphQLPullRequest>((httpResponse.Content.ReadAsStringAsync()).Result);
-                prResponse.PullRequests.AddRange(ConvertGithubPullRequests(prResults));
+                prResponse.PullRequests.AddRange(ParseGraphQLResponse(prResults));
 
                 // No pagination, then we're done
                 if (string.IsNullOrEmpty(_nextCursor))
@@ -47,6 +53,12 @@ namespace RepoBrowser.Transformation
             return false;
         }
 
+        /// <summary>
+        /// Implements actions before the request for Github's GraphQL API to determine if the request is ready to be made.
+        /// </summary>
+        /// <returns><c>true</c>, if request was befored, <c>false</c> otherwise.</returns>
+        /// <param name="repoRequest">Repo request.</param>
+        /// <param name="httpRequest">Http request.</param>
         public bool BeforeRequest(RepoRequest repoRequest, HttpRequestMessage httpRequest)
         {
             // For GraphQL, we're always a post and the same endpoint.
@@ -93,7 +105,12 @@ namespace RepoBrowser.Transformation
             return result;
         }
 
-        private List<PullRequest> ConvertGithubPullRequests(gh.GraphQLPullRequest ghPulls)
+        /// <summary>
+        /// Converts the github pull requests to internal pull requests. Updates and tracks next links.
+        /// </summary>
+        /// <returns>The github pull requests.</returns>
+        /// <param name="ghPulls">Gh pulls.</param>
+        private List<PullRequest> ParseGraphQLResponse(gh.GraphQLPullRequest ghPulls)
         {
             List<PullRequest> prList = new List<PullRequest>();
             // First loop through repos to setup pagination
@@ -122,7 +139,7 @@ namespace RepoBrowser.Transformation
                     }
 
                     // Still add them
-                    AddGraphQLToList(prList, repoNode.pullRequests);
+                    ConvertGithubPullRequests(prList, repoNode.pullRequests);
                 }
                 return prList;
             }
@@ -168,7 +185,7 @@ namespace RepoBrowser.Transformation
                 }
 
                 // Still add them (but only the one we're paginating - not the others since those are repeats
-                AddGraphQLToList(prList, repoNode.pullRequests);
+                ConvertGithubPullRequests(prList, repoNode.pullRequests);
 
                 // No continuing once we get the one we're paginating on
                 break;
@@ -178,7 +195,12 @@ namespace RepoBrowser.Transformation
 
         }
 
-        private void AddGraphQLToList(List<PullRequest> prList, gh.PullRequests pullRequests)
+        /// <summary>
+        /// Does the actual conversion of the GraphQL PR response to the internal PR data model.
+        /// </summary>
+        /// <param name="prList">Pr list.</param>
+        /// <param name="pullRequests">Pull requests.</param>
+        private void ConvertGithubPullRequests(List<PullRequest> prList, gh.PullRequests pullRequests)
         {
             int counter = 0;
             foreach (gh.PullRequestEdge prEdge in pullRequests.edges)

@@ -7,6 +7,10 @@ using Newtonsoft.Json;
 
 namespace RepoBrowser.Authentication
 {
+    /// <summary>
+    /// The OAuth2 implementation for authentication. In my experience, OAuth2 is not consistent everywhere so this would likely require changes or even new classes for
+    ///  other services such as BitBucket.
+    /// </summary>
     public class OAuth2Authentication : IAuthenticationService
     {
         // fields to get OAuth2 token
@@ -69,7 +73,7 @@ namespace RepoBrowser.Authentication
             // Check if it was successful first, otherwise the following code won't work.
             if (!response.IsSuccessStatusCode)
             {
-                return;
+                throw new HttpRequestException("Failed HTTP request for OAuth2 authenticaiton: " + response.StatusCode + " - " + response.Content.ReadAsStringAsync().Result);
             }
             _isAuthenticated = true;
             var result = JsonConvert.DeserializeObject<Dictionary<string, object>>(await response.Content.ReadAsStringAsync());
@@ -94,6 +98,9 @@ namespace RepoBrowser.Authentication
             return _isAuthenticated;
         }
 
+        /// <summary>
+        /// The OAuth2 Request object to be serialized.
+        /// </summary>
         private class OAuth2RequestObject
         {
             [JsonProperty(PropertyName = "scopes")]

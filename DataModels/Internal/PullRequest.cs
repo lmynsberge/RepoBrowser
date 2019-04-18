@@ -2,6 +2,9 @@
 
 namespace DataModels.Internal
 {
+    /// <summary>
+    /// The internal PullRequest data model
+    /// </summary>
     public class PullRequest
     {
         public string url { get; set; }

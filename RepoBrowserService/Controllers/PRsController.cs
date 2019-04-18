@@ -1,16 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
+using DataModels.Internal;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using RepoBrowserService.Configuration;
 using RepoBrowser;
 using RepoBrowser.Storage;
-using DataModels.Internal;
-using Microsoft.Extensions.Caching.Memory;
+using RepoBrowserService.Configuration;
 
 namespace RepoBrowserService.Controllers
 {
@@ -47,9 +45,6 @@ namespace RepoBrowserService.Controllers
         public async Task<ActionResult> Get(int id, 
             [FromQuery]string repo, [FromQuery]string state)
         {
-            // TODO: Remove - for quick metric purposes only
-            DateTime start = DateTime.UtcNow;
-
             // Check if organization exists, otherwise not found
             if (!DoesOrganizationExist(id, out Organization organization))
             {
@@ -64,8 +59,6 @@ namespace RepoBrowserService.Controllers
             IRepoBrowser browser = RepoBrowserFactory.CreateRepoBrowser(organization, _repoConfig, _memoryCache);
             PullRequestResponse response = await RepoBrowserFactory.GetPullRequests(request, browser);
 
-            // TODO: Remove - for quick metric purposes only
-            _logger.LogError("EndTime: " + (new TimeSpan(DateTime.UtcNow.Ticks - start.Ticks)).TotalSeconds);
             return Json(response);
         }
 
