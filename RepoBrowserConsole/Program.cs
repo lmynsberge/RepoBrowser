@@ -14,7 +14,7 @@ namespace RepoBrowserConsole
             Console.WriteLine("");
 
             Console.WriteLine("Please enter the number of an available organization to perform PR searches on the organization.");
-            Console.WriteLine(" --> 1  - Ramda Organization");
+            Console.WriteLine(" --> 1 - Ramda Organization");
             string organization = Console.ReadLine();
             if (organization != "1")
             {
@@ -24,11 +24,30 @@ namespace RepoBrowserConsole
                 return;
             }
 
+            Console.WriteLine("Please enter whether to search for open, closed, or all (default)");
+            Console.WriteLine(" --> 1 - All");
+            Console.WriteLine(" --> 2 - Open");
+            Console.WriteLine(" --> 3 - Closed");
+            string stateInput = Console.ReadLine();
+            string state = "all";
+            if (!",1,2,3,".Contains("," + stateInput + ","))
+            {
+                Console.WriteLine("You did not select a valid state. Using default (All)");
+            }
+            if (stateInput == "2")
+            {
+                state = "open";
+            }
+            else if (stateInput == "3")
+            {
+                state = "closed";
+            }
+
             Console.WriteLine("Performing PullRequst search for the Ramda Organization (#1)");
 
             HttpClient httpClient = new HttpClient();
             HttpRequestMessage requestMessage = new HttpRequestMessage();
-            requestMessage.RequestUri = new Uri(new Uri(s_BaseUri), "/api/prs/1?state=all");
+            requestMessage.RequestUri = new Uri(new Uri(s_BaseUri), "/api/prs/1?state=" + state);
             requestMessage.Headers.Add("Accept", "application/json");
             HttpResponseMessage response = httpClient.SendAsync(requestMessage).Result;
 
