@@ -10,6 +10,7 @@
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.9.0" />
     <PackageReference Include="xunit" Version="2.4.0" />
     <PackageReference Include="xunit.runner.visualstudio" Version="2.4.0" />
+    <PackageReference Include="Microsoft.Extensions.Primitives" Version="2.2.0" />
   </ItemGroup>
 
   <ItemGroup>
@@ -22,6 +23,9 @@
     </Reference>
     <Reference Include="Microsoft.Extensions.Options">
       <HintPath>..\..\..\..\..\usr\local\share\dotnet\sdk\NuGetFallbackFolder\microsoft.extensions.options\2.2.0\lib\netstandard2.0\Microsoft.Extensions.Options.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Extensions.Caching.Abstractions">
+      <HintPath>..\..\..\..\..\usr\local\share\dotnet\sdk\NuGetFallbackFolder\microsoft.extensions.caching.abstractions\2.2.0\lib\netstandard2.0\Microsoft.Extensions.Caching.Abstractions.dll</HintPath>
     </Reference>
   </ItemGroup>
 </Project>
