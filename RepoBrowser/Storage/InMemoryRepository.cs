@@ -5,6 +5,9 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace RepoBrowser.Storage
 {
+    /// <summary>
+    /// Basic implementation of an in-memory CRUD repository with no frills.
+    /// </summary>
     public class InMemoryRepository : IStorageRepository
     {
         private string _database;

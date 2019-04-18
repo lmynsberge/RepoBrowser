@@ -115,7 +115,7 @@ namespace RepoBrowser
                 {
                     throw new InvalidOperationException("After receiving the response the custom transformation service threw an exception: " + ex.Message);
                 }
-        }
+            }
 
             return prResponse;
 

@@ -9,6 +9,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RepoBrowser", "RepoBrowser\
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RepoBrowser.UnitTests", "RepoBrowser.UnitTests\RepoBrowser.UnitTests.csproj", "{ADD21CAC-8E96-4835-A12E-E30F1C689BB5}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RepoBrowserConsole", "RepoBrowserConsole\RepoBrowserConsole.csproj", "{3B1A78D3-7381-44CD-A828-818B698839F6}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -31,5 +33,9 @@ Global
 		{ADD21CAC-8E96-4835-A12E-E30F1C689BB5}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{ADD21CAC-8E96-4835-A12E-E30F1C689BB5}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{ADD21CAC-8E96-4835-A12E-E30F1C689BB5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3B1A78D3-7381-44CD-A828-818B698839F6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3B1A78D3-7381-44CD-A828-818B698839F6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3B1A78D3-7381-44CD-A828-818B698839F6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3B1A78D3-7381-44CD-A828-818B698839F6}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
