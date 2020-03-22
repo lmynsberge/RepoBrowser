@@ -84,3 +84,5 @@ Another metric was done to recommend GraphQL over REST at least for Github. The 
 * GraphQL (subsequent request) - ~27s
 Of course if you need to expand the internal data model to gather as much data as the REST API, this benefit decreases, but it is unlikely you need it all.
 
+
+
